@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {
+      "symbol": "Y",
+      "arguments": ["a"],
+      "rhs": "a (Y a)"
+    }
+  ]
+}
