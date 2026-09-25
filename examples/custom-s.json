@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {
+      "symbol": "S",
+      "arguments": ["a", "b", "c"],
+      "rhs": "a c (b c)"
+    }
+  ]
+}

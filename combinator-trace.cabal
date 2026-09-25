@@ -1,0 +1,71 @@
+cabal-version:      3.14
+name:               combinator-trace
+version:            0.1.0.0
+synopsis:           Trace invariants for combinatory logic
+category:           Logic
+author:             Takuma Imamura
+license:            MIT
+license-file:       LICENSE
+build-type:         Simple
+extra-source-files:
+    README.md
+    examples/*.term
+    examples/*.json
+
+common settings
+  default-language: Haskell2010
+  ghc-options: -Wall -Wcompat -Wincomplete-uni-patterns -Wincomplete-record-updates
+
+library
+  import: settings
+  hs-source-dirs: src
+  exposed-modules:
+      Combinator
+      Combinator.Term
+      Combinator.Rule
+      Combinator.Reduction
+      Combinator.Trace
+      Combinator.Trace.Periodic
+      Combinator.Invariant
+      Combinator.Parser
+      Combinator.Pretty
+  other-modules:
+      Combinator.Internal.Term
+  build-depends:
+      base >=4.14 && <5
+    , containers >=0.6 && <0.9
+    , term-rewriting >=0.5 && <0.6
+    , megaparsec >=9.2 && <10
+    , prettyprinter >=1.7 && <1.8
+
+executable combinator-trace
+  import: settings
+  hs-source-dirs: app
+  main-is: Main.hs
+  other-modules: Config, Output
+  ghc-options: -threaded -rtsopts
+  build-depends:
+      base >=4.14 && <5
+    , combinator-trace
+    , aeson >=2.0 && <2.3
+    , bytestring >=0.10 && <0.13
+    , optparse-applicative >=0.17 && <0.20
+    , containers >=0.6 && <0.9
+
+test-suite tests
+  import: settings
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test, app
+  main-is: Main.hs
+  other-modules: Reference, Examples, Enumeration, Config
+  build-depends:
+      base >=4.14 && <5
+    , combinator-trace
+    , aeson >=2.0 && <2.3
+    , bytestring >=0.10 && <0.13
+    , term-rewriting >=0.5 && <0.6
+    , containers >=0.6 && <0.9
+    , tasty >=1.4 && <1.6
+    , tasty-hunit >=0.10 && <0.11
+    , tasty-quickcheck >=0.10 && <0.12
+    , QuickCheck >=2.14 && <2.18
