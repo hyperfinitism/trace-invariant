@@ -17,11 +17,12 @@ It also provides the `trace` and `invariant` commands.
 ## Trace and invariant
 
 Fix a combinatory logic with orthogonal, non-erasing rules, a constant  that duplicates arguments (e.g. `M`, `S`, `W`), and a target variable.
-`trace` follows the input term's leftmost-innermost (LI) reduction, keeping track of the pair `(q,p)` for each contraction of the target constant: `q` counts occurrences of the target variable in the duplicated argument, and `p` counts those strictly before the redex.
+`trace` follows the input term's leftmost-innermost (LI) reduction, keeping track of the pair `(p,q)` for each contraction of the target constant: `p` counts occurrences of the target variable strictly before the redex, and `q` counts those in the duplicated argument.
 
 `--basis` selects built-in rules; `--rules FILE` adds custom rules, whose contractions can also be selected with `--track`.
 `--variable` selects the variable (default `x`); input is `TERM` or `--term-file FILE`.
 Limits are `--events` (default 20), `--steps` (default 10000 total contractions), and optional `--nodes`.
+`--json` emits JSON, with trace points represented as `[p,q]`.
 
 For a given term, its trace invariant is defined as its normal form, provided the term is normalisable; otherwise, it is defined as the infinite trace via tail equivalence.
 Since normalisability and tail equivalence are generally undecidable, `trace` calculates only the requested prefix and terminates the calculation once it reaches normal form or hits a limit.
@@ -104,14 +105,27 @@ cabal run combinator-trace -- invariant --theory BMI --term-file examples/period
 
 ## How to cite
 
+### Software
+
+```bibtex
+@misc{TraceInvariant,
+      author       = {Takuma Imamura},
+      title        = {Trace invariant for combinatory logic},
+      howpublished = {GitHub},
+      year         = {2026},
+      url          = {https://github.com/hyperfinitism/trace-invariant},
+}
+```
+
+### Paper
+
 ```bibtex
 @misc{imamura2026bluebirdsmockingbirdsproducefixedpoint,
-      title={Bluebirds and mockingbirds cannot produce a fixed-point combinator},
-      author={Takuma Imamura},
-      year={2026},
-      eprint={2609.21765},
-      archivePrefix={arXiv},
-      primaryClass={math.LO},
-      url={https://arxiv.org/abs/2609.21765},
+      author       = {Takuma Imamura},
+      title        = {Bluebirds and mockingbirds cannot produce a fixed-point combinator},
+      howpublished = {arXiv},
+      year         = {2026},
+      url          = {https://arxiv.org/abs/2609.21765},
+      doi          = {10.48550/arXiv.2609.21765},
 }
 ```

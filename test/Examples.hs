@@ -28,11 +28,11 @@ data ExampleCheck = ExampleCheck
   } deriving Show
 
 beta :: Natural -> TracePoint
-beta = TracePoint 1
+beta p = TracePoint p 1
 
 alpha :: Natural -> TracePoint
-alpha 0 = TracePoint 1 0
-alpha n = TracePoint (n+1) (n*(n-1) `div` 2)
+alpha 0 = TracePoint 0 1
+alpha n = TracePoint (n*(n-1) `div` 2) (n+1)
 
 allExamples :: [Example]
 allExamples =
@@ -57,7 +57,7 @@ allExamples =
   , Example "examples/normalising.term" "BMI" mObserver Nothing
       [beta 0] (Just (var "x" @@ var "x"))
   , Example "examples/periodic.term" "BMI" mObserver Nothing
-      (repeat (TracePoint 0 2)) Nothing
+      (repeat (TracePoint 2 0)) Nothing
   ]
 
 checkExample :: Natural -> Example -> IO (Either String ExampleCheck)
