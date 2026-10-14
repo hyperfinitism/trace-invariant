@@ -138,13 +138,23 @@ reductionTests = testGroup "rewriting semantics"
 
 traceTests :: TestTree
 traceTests = testGroup "bounded observations"
-  [ testCase "W p is before the redex, not before its second argument" $ do
-      resultPoints (run basisBWI wObserver shortLimits "Wxx") @?= [point 1 0]
+  [ testCase "trace pairs put p before q without changing their definitions" $ do
+      let r = run basisBMI mObserver shortLimits "x(x(M(x(xx))))"
+      resultPoints r @?= [point 2 3]
+      map eventP (resultEvents r) @?= [2]
+      map eventQ (resultEvents r) @?= [3]
+      traceP (point 2 3) @?= 2
+      traceQ (point 2 3) @?= 3
+  , testCase "shifting changes p in the first coordinate and preserves q" $
+      shiftPoint 4 (point 2 3) @?= point 6 3
+  , testCase "W p is before the redex, not before its second argument" $ do
+      resultPoints (run basisBWI wObserver shortLimits "Wxx") @?= [point 0 1]
       resultPoints (run basisBWI wObserver shortLimits "x(Wxx)") @?= [point 1 1]
   , testCase "S observes only argument three" $
-      resultPoints (run basisBCIMWS sObserver shortLimits "Sxxx") @?= [point 1 0]
-  , testCase "zero q observations are retained" $
+      resultPoints (run basisBCIMWS sObserver shortLimits "Sxxx") @?= [point 0 1]
+  , testCase "zero q observations are retained" $ do
       resultPoints (run basisBMI mObserver shortLimits "MM") @?= replicate 12 (point 0 0)
+      resultPoints (run basisBMI mObserver shortLimits "x(MM)") @?= replicate 12 (point 1 0)
   , testCase "step budget is distinct from normality" $ do
       let r = run basisBMI mObserver (shortLimits { maxSteps = Just 3 }) "MM"
       resultStop r @?= StepBudgetReached
@@ -211,7 +221,7 @@ traceTests = testGroup "bounded observations"
           r = run bs allDuplicated shortLimits "Dxyx"
           blocked = run bs allDuplicated (shortLimits { maxEvents = Just 2 }) "Dxyx"
       map eventArgument (resultEvents r) @?= [1,2,3]
-      resultPoints r @?= [point 1 0,point 0 0,point 1 0]
+      resultPoints r @?= [point 0 1,point 0 0,point 0 1]
       resultStop blocked @?= EventBudgetReached
       resultSteps blocked @?= 0
       resultEvents blocked @?= []
@@ -219,11 +229,11 @@ traceTests = testGroup "bounded observations"
       let d = must (mkRule "D" 1 (var 1 @@ var 1 @@ var 1))
           bs = must (mkBasis [d])
           r = run bs allDuplicated shortLimits "Dx"
-      resultPoints r @?= [point 1 0]
+      resultPoints r @?= [point 0 1]
       map eventMultiplicity (resultEvents r) @?= [3]
   , testCase "target variable is parametrised" $ do
       let r = must (runTrace basisBMI mObserver "y" shortLimits (parse "M(yx)"))
-      resultPoints r @?= [point 1 0]
+      resultPoints r @?= [point 0 1]
   ]
 
 streamTests :: TestTree
@@ -239,7 +249,7 @@ streamTests = testGroup "lazy trace streams"
       resultEvents complete @?= events
   , testCase "an infinite growing trace yields any requested finite prefix" $ do
       let events = must (traceStream basisBMI mObserver "x" nonUniformF)
-      map eventPoint (take 64 events) @?= map (point 1) [0..63]
+      map eventPoint (take 64 events) @?= map (`point` 1) [0..63]
       map eventStep (take 64 events) @?= [0,2..126]
   , testCase "a periodic reduction produces an infinite event stream" $ do
       let events = must (traceStream basisBMI mObserver "x" omega)
@@ -289,11 +299,18 @@ invariantTests = testGroup "represented invariant fragment"
   , testCase "a BWI reduction cycle yields a periodic trace representative" $
       viewInvariant (inv BWI "(WI)(WI)") @?= PeriodicInvariant (periodicClass (point 0 0 :| []))
   , testCase "period phase and a repeated shorter block are quotiented" $ do
-      let a = point 1 0; b = point 2 1
+      let a = point 0 1; b = point 1 2
       periodicClass (a :| [b,a,b]) @?= periodicClass (b :| [a])
+  , testCase "the canonical period compares p before q" $
+      periodBlock (periodicClass (point 2 1 :| [point 1 3]))
+        @?= (point 1 3 :| [point 2 1])
   , testCase "distinct periodic classes remain distinct" $
       assertBool "a positive p shift changes this periodic class"
-        (periodicClass (point 0 0 :| []) /= periodicClass (point 0 1 :| []))
+        (periodicClass (point 0 0 :| []) /= periodicClass (point 1 0 :| []))
+  , testCase "periodic shifting changes p and preserves q" $ do
+      let original = periodicClass (point 2 3 :| [point 4 1])
+          expected = periodicClass (point 7 3 :| [point 9 1])
+      shiftPeriodic 5 original @?= expected
   , testCase "incompatible theories are rejected" $
       equalInvariants (inv BMI "x") (inv BWI "x") @?= Left DifferentTheories
   , testCase "incompatible target variables are rejected" $ do
@@ -309,6 +326,7 @@ invariantTests = testGroup "represented invariant fragment"
         Resolved _ -> assertFailure "No full-state loop or normal form was reached"
   , testCase "star shifts a right trace by the normal left occurrence count" $ do
       let out = resolved (must (starInvariant shortLimits (inv BMI "x") (inv BMI "MM")))
+      viewInvariant out @?= PeriodicInvariant (periodicClass (point 1 0 :| []))
       equalInvariants out (inv BMI "x(MM)") @?= Right True
   , testCase "star with a trace on the left absorbs" $ do
       let out = resolved (must (starInvariant shortLimits (inv BMI "MM") (inv BMI "x")))

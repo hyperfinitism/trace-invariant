@@ -7,7 +7,7 @@ import Data.Aeson (Value, object, toJSON, (.=))
 import qualified Data.List.NonEmpty as NE
 
 pointValue :: TracePoint -> Value
-pointValue p = toJSON [toInteger (traceQ p), toInteger (traceP p)]
+pointValue p = toJSON [toInteger (traceP p), toInteger (traceQ p)]
 
 eventValue :: Event String -> Value
 eventValue e = object
@@ -16,8 +16,8 @@ eventValue e = object
   , "argument" .= eventArgument e
   , "multiplicity" .= toInteger (eventMultiplicity e)
   , "position" .= eventPosition e
-  , "q" .= toInteger (eventQ e)
   , "p" .= toInteger (eventP e)
+  , "q" .= toInteger (eventQ e)
   ]
 
 stopName :: StopReason c -> String
@@ -38,8 +38,7 @@ cycleValue c = object
 
 runValue :: RunResult String String -> Value
 runValue r = object
-  [ "schemaVersion" .= (1 :: Int)
-  , "strategy" .= ("leftmost-innermost" :: String)
+  [ "strategy" .= ("leftmost-innermost" :: String)
   , "steps" .= toInteger (resultSteps r)
   , "stop" .= stopName (resultStop r)
   , "events" .= map eventValue (resultEvents r)
@@ -53,13 +52,11 @@ runValue r = object
 
 analysisValue :: Analysis String -> Value
 analysisValue (Unresolved r) = object
-  [ "schemaVersion" .= (1 :: Int)
-  , "status" .= ("unresolved" :: String)
+  [ "status" .= ("unresolved" :: String)
   , "run" .= runValue r
   ]
 analysisValue (Resolved inv) = object
-  [ "schemaVersion" .= (1 :: Int)
-  , "status" .= ("resolved" :: String)
+  [ "status" .= ("resolved" :: String)
   , "theory" .= show (invariantTheory inv)
   , "variable" .= invariantVariable inv
   , "value" .= case viewInvariant inv of

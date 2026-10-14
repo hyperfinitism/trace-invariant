@@ -62,7 +62,7 @@ termInputParser =
   <|> (InlineTerm <$> strArgument (metavar "TERM" <> help "Term to reduce"))
 
 jsonParser :: Parser Bool
-jsonParser = switch (long "json" <> help "Emit one versioned JSON value")
+jsonParser = switch (long "json" <> help "Emit one JSON value")
 
 limitsParser :: Parser Limits
 limitsParser = (Limits . Just
@@ -136,7 +136,7 @@ execute (InvariantCommand theory target limits json input) = do
         NormalInvariant t -> putStrLn ("Normal-form invariant: " ++ renderNamedTerm t)
         PeriodicInvariant p ->
           putStrLn ("Periodic trace representative (repeating block): "
-            ++ show [(traceQ point, traceP point) | point <- toList (periodBlock p)])
+            ++ show [(traceP point, traceQ point) | point <- toList (periodBlock p)])
     Unresolved run -> do
       putStrLn "Invariant unresolved within the supplied limits."
       printRun run
@@ -144,11 +144,11 @@ execute (InvariantCommand theory target limits json input) = do
 printRun :: RunResult String String -> IO ()
 printRun r = do
   putStrLn ("Stop: " ++ stopName (resultStop r) ++ "; steps: " ++ show (resultSteps r))
-  putStrLn "step  rule  argument  position  (q,p)"
+  putStrLn "step  rule  argument  position  (p,q)"
   forM_ (resultEvents r) $ \e -> putStrLn
     (show (eventStep e) ++ "  " ++ eventRule e ++ "  " ++ show (eventArgument e)
       ++ "  " ++ renderPosition (eventPosition e)
-      ++ "  " ++ show (eventQ e, eventP e))
+      ++ "  " ++ show (eventP e, eventQ e))
   let label = case resultStop r of
         NormalForm -> "Normal form: "
         _ -> "Residual: "

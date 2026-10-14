@@ -35,6 +35,6 @@ periodBlock (PeriodicTrace block) = block
 periodicPrefix :: Natural -> PeriodicTrace -> [TracePoint]
 periodicPrefix n = takeNatural n . cycle . NE.toList . periodBlock
 
--- | Add an offset to every second coordinate of a periodic trace.
+-- | Add an offset to every first coordinate, @p@, of a periodic trace.
 shiftPeriodic :: Natural -> PeriodicTrace -> PeriodicTrace
 shiftPeriodic n = periodicClass . fmap (shiftPoint n) . periodBlock

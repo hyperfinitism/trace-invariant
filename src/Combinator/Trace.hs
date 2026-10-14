@@ -17,13 +17,13 @@ import qualified Data.Sequence as Seq
 import Data.Foldable (toList)
 import Numeric.Natural (Natural)
 
--- | Represent trace coordinates @(q,p)@: occurrences in the copied argument and before the redex.
-data TracePoint = TracePoint { traceQ :: Natural, traceP :: Natural }
+-- | Represent trace coordinates @(p,q)@: occurrences before the redex and in the copied argument.
+data TracePoint = TracePoint { traceP :: Natural, traceQ :: Natural }
   deriving (Eq, Ord, Show)
 
--- | Add an offset to the second trace coordinate.
+-- | Add an offset to the first trace coordinate, @p@.
 shiftPoint :: Natural -> TracePoint -> TracePoint
-shiftPoint n (TracePoint q p) = TracePoint q (p+n)
+shiftPoint n (TracePoint p q) = TracePoint (p+n) q
 
 -- | Record a copied argument's trace coordinates, rule, position, and zero-based step.
 data Event c = Event
@@ -32,13 +32,13 @@ data Event c = Event
   , eventArgument :: !Int
   , eventMultiplicity :: !Natural
   , eventPosition :: !Pos
-  , eventQ :: !Natural
   , eventP :: !Natural
+  , eventQ :: !Natural
   } deriving (Eq, Ord, Show)
 
 -- | Return the trace coordinates of an event.
 eventPoint :: Event c -> TracePoint
-eventPoint e = TracePoint (eventQ e) (eventP e)
+eventPoint e = TracePoint (eventP e) (eventQ e)
 
 -- | Select which duplicated rule arguments contribute trace events.
 data Observer c = AllDuplicated | Selected (Set.Set (c,Int))
@@ -98,7 +98,7 @@ observeStep observer x index st = do
     make p (i,multiplicity) = do
       a <- maybe (Left (MissingMatchedArgument c i)) Right
         (Map.lookup i (stepArguments st))
-      pure (Event index c i multiplicity (stepPosition st) (occurrences x a) p)
+      pure (Event index c i multiplicity (stepPosition st) p (occurrences x a))
 
 -- | Set optional cumulative step and event limits, a term-tree node bound, and cycle detection.
 data Limits = Limits
