@@ -1,8 +1,6 @@
 # Trace invariant for combinatory logic
 
-This repository contains supplementary materials for the paper [*Bluebirds and mockingbirds cannot produce a fixed-point combinator*](https://arxiv.org/abs/2609.21765).
-
-It provides a Haskell library for computing trace invariants in combinator logic consisting of orthogonal, non-erasing reduction rules.
+This repository provides a Haskell library for computing trace invariants ([arXiv:2609.21765](https://arxiv.org/abs/2609.21765)) for certain fragments of combinatory logic.
 This includes the following built-in rules:
 
 - `Bxyz => x(yz)`
@@ -101,31 +99,4 @@ cabal run combinator-trace -- invariant --theory BMI --term-file examples/normal
 # x(x(MM))
 cabal run combinator-trace -- trace --basis BMI --track M --events 6 --term-file examples/periodic.term
 cabal run combinator-trace -- invariant --theory BMI --term-file examples/periodic.term
-```
-
-## How to cite
-
-### Software
-
-```bibtex
-@misc{TraceInvariant,
-      author       = {Takuma Imamura},
-      title        = {Trace invariant for combinatory logic},
-      howpublished = {GitHub},
-      year         = {2026},
-      url          = {https://github.com/hyperfinitism/trace-invariant},
-}
-```
-
-### Paper
-
-```bibtex
-@misc{imamura2026bluebirdsmockingbirdsproducefixedpoint,
-      author       = {Takuma Imamura},
-      title        = {Bluebirds and mockingbirds cannot produce a fixed-point combinator},
-      howpublished = {arXiv},
-      year         = {2026},
-      url          = {https://arxiv.org/abs/2609.21765},
-      doi          = {10.48550/arXiv.2609.21765},
-}
 ```
