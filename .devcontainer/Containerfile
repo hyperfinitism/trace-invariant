@@ -1,0 +1,8 @@
+FROM docker.io/library/haskell:9.12.4-slim-bookworm@sha256:557273fcf9c0573d1302405e83d5963db6c94b81d5169ac320b644ffca439370
+
+RUN cabal update \
+    && cabal install hlint-3.10 apply-refact-0.15.0.0 \
+        --ignore-project \
+        --installdir=/usr/local/bin \
+        --install-method=copy \
+        --jobs=2

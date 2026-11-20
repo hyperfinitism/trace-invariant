@@ -1,0 +1,16 @@
+{
+  "name": "trace-invariant-devcontainer",
+  "build": {
+    "dockerfile": "Containerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "DavidAnson.vscode-markdownlint",
+        "haskell.haskell"
+      ],
+      "settings": {
+      }
+    }
+  }
+}
